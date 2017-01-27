@@ -5,6 +5,7 @@
     <ignored path="VPLCompilerProject.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/out/" />
+    <ignored path=".idea/dataSources.local.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -367,15 +368,15 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1485456212585</updated>
-      <workItem from="1485456214199" duration="67000" />
+      <workItem from="1485456214199" duration="584000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="67000" />
+    <option name="totallyTimeSpent" value="584000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1064" extended-state="1" />
+    <frame x="-9" y="-9" width="1938" height="1064" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
