@@ -8,13 +8,14 @@ import java.io.*;
 import java.util.*;
 
 public class VPLStart {
-    static final int max = 10000;
-    static int[] mem = new int[max];
-    static int ip, bp, sp, rv, hp, numPassed, gp;
+    Scanner in = new Scanner(System.in);
+    private static final int max = 10000;
+    private static int[] mem = new int[max];
+    private static int ip, bp, sp, rv, hp, numPassed, gp;
 
-    static String fileName;
+    private static String fileName;
 
-    public static void main(String[] args) throws Exception {
+    public void main(String[] args) throws Exception {
         BufferedReader keys = new BufferedReader(
                 new InputStreamReader(System.in));
         System.out.print("enter name of file containing VPLStart program: ");
@@ -89,11 +90,11 @@ public class VPLStart {
         showMem(0, k - 1);
 
         // initialize registers:
-        bp = k;
-        sp = k + 2;
-        ip = 0;
-        rv = -1;
-        hp = max;
+        bp = k; //Base pointer
+        sp = k + 2; //Stack pointer
+        ip = 0; //Index pointer
+        rv = -1; //return value
+        hp = max; //heap pointer
         numPassed = 0;
 
         int codeEnd = bp - 1;
@@ -101,7 +102,38 @@ public class VPLStart {
         System.out.println("Code is ");
         showMem(0, codeEnd);
 
-        gp = codeEnd + 1;
+        gp = codeEnd + 1; //global pointer
+
+        /**
+         * TODO interpret code
+         *
+         * use mem[bp + 2 + a] for cell a
+         */
+        int op, a, b, c, n, address;
+
+        while(ip < bp){
+
+            op = mem[ip];
+
+            if(op == 1){
+
+            }else if(op == 2){
+
+            }else if(op == 3){
+
+            }else if(op == 4){
+
+                sp += mem[ip + 1];
+                ip += 2;
+
+            }else if(op == 27){
+
+                System.out.println("?");
+                in.nextInt();
+            }
+
+
+        }
 
     }// main
 
