@@ -1,0 +1,420 @@
+/*
+ * Decompiled with CFR 0_118.
+ *
+ * Could not load the following classes:
+ *  IntPair
+ */
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+public class VPL {
+    static final int max = 10000;
+    static int[] mem = new int[10000];
+    static int ip;
+    static int bp;
+    static int sp;
+    static int rv;
+    static int hp;
+    static int numPassed;
+    static int gp;
+    static String fileName;
+    static int texShots;
+    private static final int noopCode = 0;
+    private static final int labelCode = 1;
+    private static final int callCode = 2;
+    private static final int passCode = 3;
+    private static final int allocCode = 4;
+    private static final int returnCode = 5;
+    private static final int getRetvalCode = 6;
+    private static final int jumpCode = 7;
+    private static final int condJumpCode = 8;
+    private static final int addCode = 9;
+    private static final int subCode = 10;
+    private static final int multCode = 11;
+    private static final int divCode = 12;
+    private static final int remCode = 13;
+    private static final int equalCode = 14;
+    private static final int notEqualCode = 15;
+    private static final int lessCode = 16;
+    private static final int lessEqualCode = 17;
+    private static final int andCode = 18;
+    private static final int orCode = 19;
+    private static final int notCode = 20;
+    private static final int oppCode = 21;
+    private static final int litCode = 22;
+    private static final int copyCode = 23;
+    private static final int getCode = 24;
+    private static final int putCode = 25;
+    private static final int haltCode = 26;
+    private static final int inputCode = 27;
+    private static final int outputCode = 28;
+    private static final int newlineCode = 29;
+    private static final int symbolCode = 30;
+    private static final int newCode = 31;
+    private static final int allocGlobalCode = 32;
+    private static final int toGlobalCode = 33;
+    private static final int fromGlobalCode = 34;
+    private static final int debugCode = 35;
+
+    public static void main(String[] arrstring) throws Exception {
+        String string;
+        int n;
+        int n2;
+        int n3;
+        int n4;
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("enter name of file containing VPL program: ");
+        fileName = bufferedReader.readLine();
+        BufferedReader bufferedReader2 = new BufferedReader(new FileReader(fileName));
+        ArrayList<IntPair> arrayList = new ArrayList<IntPair>();
+        ArrayList<IntPair> arrayList2 = new ArrayList<IntPair>();
+        int n5 = 0;
+        do {
+            StringTokenizer stringTokenizer;
+            string = bufferedReader2.readLine();
+            System.out.println("parsing line [" + string + "]");
+            if (string == null || (stringTokenizer = new StringTokenizer(string)).countTokens() <= 0) continue;
+            int n6 = Integer.parseInt(stringTokenizer.nextToken());
+            if (n6 == 1) {
+                n2 = Integer.parseInt(stringTokenizer.nextToken());
+                arrayList.add(new IntPair(n2, n5));
+                continue;
+            }
+            VPL.mem[n5] = n6;
+            ++n5;
+            if (n6 == 2 || n6 == 7 || n6 == 8) {
+                VPL.mem[n5] = n2 = Integer.parseInt(stringTokenizer.nextToken());
+                arrayList2.add(new IntPair(n5, n2));
+                ++n5;
+            }
+            for (n3 = 0; n3 < VPL.numArgs(n6); ++n3) {
+                VPL.mem[n5] = Integer.parseInt(stringTokenizer.nextToken());
+                ++n5;
+            }
+        } while (string != null);
+        for (n = 0; n < arrayList2.size(); ++n) {
+            n2 = ((IntPair)arrayList2.get((int)n)).second;
+            n3 = -1;
+            for (n4 = 0; n4 < arrayList.size(); ++n4) {
+                if (((IntPair)arrayList.get((int)n4)).first != n2) continue;
+                n3 = ((IntPair)arrayList.get((int)n4)).second;
+            }
+            VPL.mem[((IntPair)arrayList2.get((int)n)).first] = n3;
+        }
+        System.out.println("after replacing labels:");
+        VPL.showMem(0, n5 - 1);
+        bp = n5;
+        sp = n5 + 2;
+        ip = 0;
+        rv = -1;
+        hp = 10000;
+        numPassed = 0;
+        n = bp - 1;
+        System.out.println("Code is ");
+        VPL.showMem(0, n);
+        gp = n + 1;
+        n4 = 0;
+        int n7 = 0;
+        int n8 = 0;
+        int n9 = 0;
+        do {
+            int n10 = mem[ip];
+            ++ip;
+            n7 = -1;
+            n8 = -2;
+            n9 = -3;
+            int n11 = n10 == 2 || n10 == 7 || n10 == 8 ? VPL.numArgs(n10) + 1 : VPL.numArgs(n10);
+            if (n11 == 1) {
+                n7 = mem[ip];
+                ++ip;
+            } else if (n11 == 2) {
+                n7 = mem[ip];
+                n8 = mem[++ip];
+                ++ip;
+            } else if (n11 == 3) {
+                n7 = mem[ip];
+                n8 = mem[++ip];
+                n9 = mem[++ip];
+                ++ip;
+            }
+            if (n10 == 0) continue;
+            if (n10 == 2) {
+                VPL.mem[VPL.sp] = bp;
+                VPL.mem[VPL.sp + 1] = ip;
+                bp = sp;
+                sp += 2 + numPassed;
+                ip = n7;
+                numPassed = 0;
+                continue;
+            }
+            if (n10 == 3) {
+                VPL.mem[VPL.sp + VPL.numPassed + 2] = mem[bp + 2 + n7];
+                ++numPassed;
+                continue;
+            }
+            if (n10 == 4) {
+                sp += n7;
+                continue;
+            }
+            if (n10 == 5) {
+                rv = mem[bp + 2 + n7];
+                ip = mem[bp + 1];
+                sp = bp;
+                bp = mem[bp];
+                continue;
+            }
+            if (n10 == 6) {
+                VPL.mem[VPL.bp + 2 + n7] = rv;
+                continue;
+            }
+            if (n10 == 7) {
+                ip = n7;
+                continue;
+            }
+            if (n10 == 8) {
+                if (mem[bp + 2 + n8] == 0) continue;
+                ip = n7;
+                continue;
+            }
+            if (n10 == 9) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[bp + 2 + n8] + mem[bp + 2 + n9];
+                continue;
+            }
+            if (n10 == 10) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[bp + 2 + n8] - mem[bp + 2 + n9];
+                continue;
+            }
+            if (n10 == 11) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[bp + 2 + n8] * mem[bp + 2 + n9];
+                continue;
+            }
+            if (n10 == 12) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[bp + 2 + n8] / mem[bp + 2 + n9];
+                continue;
+            }
+            if (n10 == 13) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[bp + 2 + n8] % mem[bp + 2 + n9];
+                continue;
+            }
+            if (n10 == 14) {
+                if (mem[bp + 2 + n8] == mem[bp + 2 + n9]) {
+                    VPL.mem[VPL.bp + 2 + n7] = 1;
+                    continue;
+                }
+                VPL.mem[VPL.bp + 2 + n7] = 0;
+                continue;
+            }
+            if (n10 == 15) {
+                if (mem[bp + 2 + n8] != mem[bp + 2 + n9]) {
+                    VPL.mem[VPL.bp + 2 + n7] = 1;
+                    continue;
+                }
+                VPL.mem[VPL.bp + 2 + n7] = 0;
+                continue;
+            }
+            if (n10 == 16) {
+                if (mem[bp + 2 + n8] < mem[bp + 2 + n9]) {
+                    VPL.mem[VPL.bp + 2 + n7] = 1;
+                    continue;
+                }
+                VPL.mem[VPL.bp + 2 + n7] = 0;
+                continue;
+            }
+            if (n10 == 17) {
+                if (mem[bp + 2 + n8] <= mem[bp + 2 + n9]) {
+                    VPL.mem[VPL.bp + 2 + n7] = 1;
+                    continue;
+                }
+                VPL.mem[VPL.bp + 2 + n7] = 0;
+                continue;
+            }
+            if (n10 == 18) {
+                if (mem[bp + 2 + n8] != 0 && mem[bp + 2 + n9] != 0) {
+                    VPL.mem[VPL.bp + 2 + n7] = 1;
+                    continue;
+                }
+                VPL.mem[VPL.bp + 2 + n7] = 0;
+                continue;
+            }
+            if (n10 == 19) {
+                if (mem[bp + 2 + n8] != 0 || mem[bp + 2 + n9] != 0) {
+                    VPL.mem[VPL.bp + 2 + n7] = 1;
+                    continue;
+                }
+                VPL.mem[VPL.bp + 2 + n7] = 0;
+                continue;
+            }
+            if (n10 == 20) {
+                if (mem[bp + 2 + n8] != 0) {
+                    VPL.mem[VPL.bp + 2 + n7] = 0;
+                    continue;
+                }
+                VPL.mem[VPL.bp + 2 + n7] = 1;
+                continue;
+            }
+            if (n10 == 21) {
+                VPL.mem[VPL.bp + 2 + n7] = - mem[bp + 2 + n8];
+                continue;
+            }
+            if (n10 == 22) {
+                VPL.mem[VPL.bp + 2 + n7] = n8;
+                continue;
+            }
+            if (n10 == 23) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[bp + 2 + n8];
+                continue;
+            }
+            if (n10 == 24) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[mem[bp + 2 + n8] + mem[bp + 2 + n9]];
+                continue;
+            }
+            if (n10 == 25) {
+                VPL.mem[VPL.mem[VPL.bp + 2 + n7] + VPL.mem[VPL.bp + 2 + n8]] = mem[bp + 2 + n9];
+                continue;
+            }
+            if (n10 == 26) {
+                System.out.println("\nHalting.......");
+                System.exit(0);
+                continue;
+            }
+            if (n10 == 27) {
+                System.out.print("? ");
+                VPL.mem[VPL.bp + 2 + n7] = Integer.parseInt(bufferedReader.readLine());
+                continue;
+            }
+            if (n10 == 28) {
+                System.out.print(mem[bp + 2 + n7]);
+                continue;
+            }
+            if (n10 == 29) {
+                System.out.println("");
+                continue;
+            }
+            if (n10 == 30) {
+                System.out.print((char)mem[bp + 2 + n7]);
+                continue;
+            }
+            if (n10 == 31) {
+                VPL.mem[VPL.bp + 2 + n7] = hp -= mem[bp + 2 + n8];
+                continue;
+            }
+            if (n10 == 32) {
+                bp = gp + n7;
+                sp = bp + 2;
+                continue;
+            }
+            if (n10 == 33) {
+                VPL.mem[VPL.gp + n7] = mem[bp + 2 + n8];
+                continue;
+            }
+            if (n10 == 34) {
+                VPL.mem[VPL.bp + 2 + n7] = mem[gp + n8];
+                continue;
+            }
+            if (n10 == 35) continue;
+            System.out.println("Fatal error: unknown opcode [" + n10 + "]");
+            System.exit(1);
+        } while (n4 == 0);
+    }
+
+    private static int numArgs(int n) {
+        if (n == 1) {
+            return 1;
+        }
+        if (n == 7) {
+            return 0;
+        }
+        if (n == 8) {
+            return 1;
+        }
+        if (n == 2) {
+            return 0;
+        }
+        if (n == 0 || n == 26 || n == 29 || n == 35) {
+            return 0;
+        }
+        if (n == 3 || n == 4 || n == 5 || n == 6 || n == 27 || n == 28 || n == 30 || n == 32) {
+            return 1;
+        }
+        if (n == 20 || n == 21 || n == 22 || n == 23 || n == 31 || n == 33 || n == 34) {
+            return 2;
+        }
+        if (n == 9 || n == 10 || n == 11 || n == 12 || n == 13 || n == 14 || n == 15 || n == 16 || n == 17 || n == 18 || n == 19 || n == 24 || n == 25) {
+            return 3;
+        }
+        System.out.println("Fatal error: unknown opcode [" + n + "]");
+        System.exit(1);
+        return -1;
+    }
+
+    private static void showMem(int n, int n2) {
+        for (int i = n; i <= n2; ++i) {
+            System.out.println("" + i + ": " + mem[i]);
+        }
+    }
+
+    private static void generatePiCTeX(int n) throws Exception {
+        PrintWriter printWriter = new PrintWriter(new FileWriter(fileName + texShots + ".tex"));
+        System.out.println("TeX output " + (++texShots - 1) + " has sp = " + sp);
+        printWriter.println("%" + fileName + (texShots - 1) + ".tex:");
+        printWriter.println("\\input pictex");
+        printWriter.println("\\medskip");
+        printWriter.println("\\beginpicture");
+        printWriter.println("\\setcoordinatesystem units <0.4true in, 0.4true in>");
+        int n2 = 10;
+        double d = 1.0;
+        double d2 = 1.0;
+        double d3 = 1.25;
+        double d4 = 0.08;
+        double d5 = 0.4;
+        int n3 = 10;
+        int n4 = 0;
+        double d6 = 0.0;
+        double d7 = (double)((sp + n) / n2) * (d2 + d3);
+        int n5 = 0;
+        for (int i = 0; i < sp + n; ++i) {
+            printWriter.println("\\putrectangle corners at " + d6 + " " + d7 + " and " + (d6 + d) + " " + (d7 + d2));
+            if (i < sp) {
+                printWriter.println("\\put {$" + mem[i] + "$} at " + (d6 + d / 2.0) + " " + (d7 + d2 / 2.0));
+            }
+            printWriter.println("\\put {$" + i + "$} [b] at " + (d6 + d / 2.0) + " " + (d7 + d2 + d4));
+            if (i == ip) {
+                printWriter.println("\\put {\\tt ip} [b] at " + (d6 + d / 2.0) + " " + (d7 + d2 + d5));
+            }
+            if (i == bp) {
+                printWriter.println("\\put {\\tt bp} [b] at " + (d6 + d / 2.0) + " " + (d7 + d2 + d5));
+            }
+            if (i == sp) {
+                printWriter.println("\\put {\\tt sp} [b] at " + (d6 + d / 2.0) + " " + (d7 + d2 + d5));
+            }
+            d6 += d;
+            if (++n4 != n2) continue;
+            d6 = 0.0;
+            d7 -= d3 + d2;
+            n4 = 0;
+            if (++n5 != n3) continue;
+            printWriter.println("\\endpicture\n\n");
+            printWriter.println("\\vfil\\eject");
+            printWriter.println("\\beginpicture");
+            printWriter.println("\\setcoordinatesystem units <0.4true in, 0.4true in>");
+            n5 = 0;
+            d7 = (double)((sp + n) / n2) * (d2 + d3);
+        }
+        printWriter.println("\\endpicture");
+        printWriter.println("\\vfil\\eject\\bye");
+        printWriter.close();
+    }
+
+    static {
+        texShots = 0;
+    }
+}

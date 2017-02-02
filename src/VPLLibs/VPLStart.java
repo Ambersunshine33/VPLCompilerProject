@@ -105,33 +105,245 @@ public class VPLStart {
         gp = codeEnd + 1; //global pointer
 
         /**
-         * TODO interpret code
+         * TODO interpret codes
          *
          * use mem[bp + 2 + a] for cell a
          */
         int op, a, b, c, n, address;
+        int aux = 0;
+        int retval = 0;
 
         while(ip < bp){
 
             op = mem[ip];
 
-            if(op == 1){
+            if(op == 0){
+
+                //Comment op code
+                continue;
+
+            }else if(op == 1){
+
+                //add label op code
+                continue;
 
             }else if(op == 2){
 
+                //call subprogram op code
+                mem[sp] = bp;
+                mem[sp+1] = mem[ip+2];
+                bp = sp;
+                sp = sp + 2 + aux;
+                ip = mem[ip + 1];
+                aux = 0;
+
             }else if(op == 3){
+
+                //push contents on stack op code
+                a = mem[ip+1];
+                mem[bp + 2 + aux] = a;
+                aux++;
+                ip += 2;
 
             }else if(op == 4){
 
+                //add to stack frame of current frame for local variables op code
                 sp += mem[ip + 1];
                 ip += 2;
+
+            }else if(op == 5){
+
+                //return to previous stack from with retval op code
+                a = mem[ip+1];
+                ip = mem[bp+1];
+                retval = mem[bp + 2 + a];
+                sp = bp;
+                bp = mem[bp];
+
+            }else if(op == 6){
+
+                //copy retval to cell a op code
+                a = mem[ip+1];
+                mem[bp+2+a] = retval;
+                ip += 2;
+
+            }else if(op == 7){
+
+                //change ip to level
+                a = mem[ip+1];
+                ip = mem[a];
+
+            }else if(op == 8){
+
+                //if a != 0, jump to b, else go to next instruction op code
+                a = mem[ip+2];
+                b = mem[ip+1];
+
+                if(a != 0){
+                    ip = b;
+                }else{
+                    ip+=3;
+                }
+
+            }else if(op == 9){
+
+                //addition op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                mem[bp+2+a] = mem[bp+2+b] + mem[bp+2+c];
+                ip +=4;
+
+            }else if(op == 10){
+
+                //subtraction op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                mem[bp+2+a] = mem[bp+2+b] - mem[bp+2+c];
+                ip +=4;
+
+            }else if(op == 11){
+
+                //multiplication op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                mem[bp+2+a] = mem[bp+2+b] * mem[bp+2+c];
+                ip +=4;
+
+            }else if(op == 12){
+
+                //division op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                mem[bp+2+a] = mem[bp+2+b] / mem[bp+2+c];
+                ip +=4;
+
+            }else if(op == 13){
+
+                //modulo/remainder op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                mem[bp+2+a] = mem[bp+2+b] % mem[bp+2+c];
+                ip +=4;
+
+            }else if(op == 14){
+
+                // boolean equal b == c op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                if(mem[bp+2+b] == mem[bp+2+c]){
+                    mem[bp+2+a] = 1;
+                }else{
+                    mem[bp+2+a] = 0;
+                }
+                ip +=4;
+
+            }else if(op == 15){
+
+                // boolean equal b != c op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                if(mem[bp+2+b] != mem[bp+2+c]){
+                    mem[bp+2+a] = 1;
+                }else{
+                    mem[bp+2+a] = 0;
+                }
+                ip +=4;
+
+            }else if(op == 16){
+
+                // boolean equal b < c op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                if(mem[bp+2+b] < mem[bp+2+c]){
+                    mem[bp+2+a] = 1;
+                }else{
+                    mem[bp+2+a] = 0;
+                }
+                ip +=4;
+
+            }else if(op == 17){
+
+                // boolean equal b <= c op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                if(mem[bp+2+b] <= mem[bp+2+c]){
+                    mem[bp+2+a] = 1;
+                }else{
+                    mem[bp+2+a] = 0;
+                }
+                ip +=4;
+
+            }else if(op == 18){
+
+                // boolean equal b && c != 0 op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                if(mem[bp+2+b] != 0 && mem[bp+2+c] != 0){
+                    mem[bp+2+a] = 1;
+                }else{
+                    mem[bp+2+a] = 0;
+                }
+                ip +=4;
+
+            }else if(op == 19){
+
+                // boolean equal b || c != 0 op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                if(mem[bp+2+b] != 0 || mem[bp+2+c] != 0){
+                    mem[bp+2+a] = 1;
+                }else{
+                    mem[bp+2+a] = 0;
+                }
+                ip +=4;
+
+            }else if(op == 20){
+
+            }else if(op == 21){
+
+            }else if(op == 22){
+
+            }else if(op == 23){
+
+            }else if(op == 24){
+
+            }else if(op == 25){
+
+            }else if(op == 26){
 
             }else if(op == 27){
 
                 System.out.println("?");
                 in.nextInt();
-            }
+                //not finished
+            }else if(op == 28){
 
+            }else if(op == 29){
+
+            }else if(op == 30){
+
+            }else if(op == 31){
+
+            }else if(op == 32){
+
+            }else if(op == 33){
+
+            }else if(op == 34){
+
+            }else{
+                System.out.println("Unknown OP code");
+            }
 
         }
 
