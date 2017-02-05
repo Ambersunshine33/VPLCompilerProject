@@ -4,6 +4,8 @@ package VPLLibs;
  * Created by Kristoffer.West on 1/25/2017.
  */
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
+
 import java.io.*;
 import java.util.*;
 
@@ -94,7 +96,7 @@ public class VPLStart {
         sp = k + 2; //Stack pointer
         ip = 0; //Index pointer
         rv = -1; //return value
-        hp = max; //heap pointer
+        hp = max-1; //heap pointer
         numPassed = 0;
 
         int codeEnd = bp - 1;
@@ -110,10 +112,9 @@ public class VPLStart {
          * use mem[bp + 2 + a] for cell a
          */
         int op, a, b, c, n, address;
-        int aux = 0;
-        int retval = 0;
+        boolean done = false;
 
-        while(ip < bp){
+        while(!done){
 
             op = mem[ip];
 
@@ -133,16 +134,16 @@ public class VPLStart {
                 mem[sp] = bp;
                 mem[sp+1] = mem[ip+2];
                 bp = sp;
-                sp = sp + 2 + aux;
+                sp = sp + 2 + numPassed;
                 ip = mem[ip + 1];
-                aux = 0;
+                numPassed = 0;
 
             }else if(op == 3){
 
                 //push contents on stack op code
                 a = mem[ip+1];
-                mem[bp + 2 + aux] = a;
-                aux++;
+                mem[bp + 2 + numPassed] = a;
+                numPassed++;
                 ip += 2;
 
             }else if(op == 4){
@@ -156,7 +157,7 @@ public class VPLStart {
                 //return to previous stack from with retval op code
                 a = mem[ip+1];
                 ip = mem[bp+1];
-                retval = mem[bp + 2 + a];
+                rv = mem[bp + 2 + a];
                 sp = bp;
                 bp = mem[bp];
 
@@ -164,7 +165,7 @@ public class VPLStart {
 
                 //copy retval to cell a op code
                 a = mem[ip+1];
-                mem[bp+2+a] = retval;
+                mem[bp+2+a] = rv;
                 ip += 2;
 
             }else if(op == 7){
@@ -310,39 +311,131 @@ public class VPLStart {
 
             }else if(op == 20){
 
+                // If cell b holds zero, put 1 in cell a, otherwise put 0 in cell a op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                if(mem[bp+2+b] == 0){
+                    mem[bp+2+a] = 1;
+                }else{
+                    mem[bp+2+a] = 0;
+                }
+                ip +=3;
+
             }else if(op == 21){
+
+                // Put opposite of b in cell a op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                mem[bp+2+a] = (b * (-1));
+                ip +=3;
 
             }else if(op == 22){
 
+                // Put b in cell a op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                mem[bp+2+a] = b;
+                ip +=3;
+
             }else if(op == 23){
+
+                // copy b in cell a op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                mem[bp+2+a] = b;
+                ip +=3;
 
             }else if(op == 24){
 
+                // Put [heap cell b + heap cell c] cell into cell a op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                mem[bp + 2 + a] =  mem[bp + 2 + b  + c];
+                ip +=4;
+
             }else if(op == 25){
+
+                // Put c into cell [heap cell a + heap cell b] a op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                c = mem[ip+3];
+                mem[bp + 2 + a + b] =  c;
+                ip +=4;
 
             }else if(op == 26){
 
+                //terminate program op code
+                done = true;
+
             }else if(op == 27){
 
+                //Get user input, store in cell a op code
+                a = mem[ip+1];
                 System.out.println("?");
-                in.nextInt();
-                //not finished
+                int userInput = in.nextInt();
+                mem[bp + 2 + a] = userInput;
+                ip +=2;
+
             }else if(op == 28){
+
+                //output value of cell a to console op code
+                a = mem[ip+1];
+                System.out.println(mem[bp + 2 + a]);
+                ip +=2;
 
             }else if(op == 29){
 
+                //print new line op code
+                System.out.println("");
+                ip += 1;
+
             }else if(op == 30){
+
+                // print out character if cell 32 <= a <=126 op code
+                a = mem[ip+1];
+                int symbol = mem[bp + 2 + a];
+                if(symbol >= 32 && symbol <= 126){
+                    System.out.println((char)symbol);
+                }
+                ip += 2;
 
             }else if(op == 31){
 
+                //reduce hp by amount stores in cell b, add new hp to cell a op code
+                a = mem[ip+1];
+                b = mem[ip+2];
+                hp = hp - mem[bp + 2 + b];
+                mem[bp + 2 + a] = hp;
+                ip += 3;
+
             }else if(op == 32){
+
+                //create global space, add a amount to bp, sp to bp + 2 op code
+                a = mem[ip+1];
+                bp += a;
+                sp = bp + 2;
+                ip += 2;
 
             }else if(op == 33){
 
+                //put value of a into gp + b op code
+                a = mem[ip+2];
+                b = mem[ip+1];
+                mem[gp + b] = a;
+                ip += 3;
+
             }else if(op == 34){
 
+                // put value of gp + b into cell a op code
+                a = mem[ip+2];
+                b = mem[ip+1];
+                mem[bp + 2 + a] = mem[gp + b];
+                ip += 3;
+
             }else{
-                System.out.println("Unknown OP code");
+                System.out.println("Unknown OP code. Ending program.");
+                done = true;
             }
 
         }
