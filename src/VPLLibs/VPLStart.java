@@ -4,24 +4,29 @@ package VPLLibs;
  * Created by Kristoffer.West on 1/25/2017.
  */
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 
 import java.io.*;
 import java.util.*;
 
 public class VPLStart {
-    Scanner in = new Scanner(System.in);
+    static Scanner in = new Scanner(System.in);
     private static final int max = 10000;
     private static int[] mem = new int[max];
     private static int ip, bp, sp, rv, hp, numPassed, gp;
 
     private static String fileName;
 
-    public void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         BufferedReader keys = new BufferedReader(
                 new InputStreamReader(System.in));
         System.out.print("enter name of file containing VPLStart program: ");
         fileName = keys.readLine();
+
+        /**
+         * T1: C:\Users\Kris\Dev\VPLCompilerProject\src\res\t1.txt
+         * Fib: C:\Users\Kris\Dev\VPLCompilerProject\src\res\fib.txt
+         */
+
 
         // load the program into the front part of
         // memory
@@ -121,18 +126,18 @@ public class VPLStart {
             if(op == 0){
 
                 //Comment op code
-                continue;
+                ip++;
 
             }else if(op == 1){
 
                 //add label op code
-                continue;
+                ip++;
 
             }else if(op == 2){
 
                 //call subprogram op code
                 mem[sp] = bp;
-                mem[sp+1] = mem[ip+2];
+                mem[sp+1] = ip+2;
                 bp = sp;
                 sp = sp + 2 + numPassed;
                 ip = mem[ip + 1];
@@ -142,14 +147,15 @@ public class VPLStart {
 
                 //push contents on stack op code
                 a = mem[ip+1];
-                mem[bp + 2 + numPassed] = a;
+                mem[sp + 2 + numPassed] = mem[bp + 2 + a];
                 numPassed++;
                 ip += 2;
 
             }else if(op == 4){
 
                 //add to stack frame of current frame for local variables op code
-                sp += mem[ip + 1];
+                a = mem[ip + 1];
+                sp += a;
                 ip += 2;
 
             }else if(op == 5){
@@ -172,7 +178,7 @@ public class VPLStart {
 
                 //change ip to level
                 a = mem[ip+1];
-                ip = mem[a];
+                ip = a;
 
             }else if(op == 8){
 
@@ -180,7 +186,7 @@ public class VPLStart {
                 a = mem[ip+2];
                 b = mem[ip+1];
 
-                if(a != 0){
+                if(mem[bp + 2 + a] != 0){
                     ip = b;
                 }else{
                     ip+=3;
@@ -326,7 +332,7 @@ public class VPLStart {
                 // Put opposite of b in cell a op code
                 a = mem[ip+1];
                 b = mem[ip+2];
-                mem[bp+2+a] = (b * (-1));
+                mem[bp+2+a] = (mem[bp+2+b] * (-1));
                 ip +=3;
 
             }else if(op == 22){
@@ -342,7 +348,7 @@ public class VPLStart {
                 // copy b in cell a op code
                 a = mem[ip+1];
                 b = mem[ip+2];
-                mem[bp+2+a] = b;
+                mem[bp+2+a] = mem[bp+2+b];
                 ip +=3;
 
             }else if(op == 24){
@@ -351,7 +357,7 @@ public class VPLStart {
                 a = mem[ip+1];
                 b = mem[ip+2];
                 c = mem[ip+3];
-                mem[bp + 2 + a] =  mem[bp + 2 + b  + c];
+                mem[bp + 2 + a] =  mem[mem[bp + 2 + b]  + mem[bp + 2 + c]];
                 ip +=4;
 
             }else if(op == 25){
@@ -360,7 +366,7 @@ public class VPLStart {
                 a = mem[ip+1];
                 b = mem[ip+2];
                 c = mem[ip+3];
-                mem[bp + 2 + a + b] =  c;
+                mem[mem[bp + 2 + a] + mem[bp + 2 + b]] =  mem[bp + 2 + c];
                 ip +=4;
 
             }else if(op == 26){
@@ -395,6 +401,7 @@ public class VPLStart {
                 // print out character if cell 32 <= a <=126 op code
                 a = mem[ip+1];
                 int symbol = mem[bp + 2 + a];
+
                 if(symbol >= 32 && symbol <= 126){
                     System.out.println((char)symbol);
                 }
@@ -413,7 +420,7 @@ public class VPLStart {
 
                 //create global space, add a amount to bp, sp to bp + 2 op code
                 a = mem[ip+1];
-                bp += a;
+                bp = gp + a;
                 sp = bp + 2;
                 ip += 2;
 
@@ -422,14 +429,14 @@ public class VPLStart {
                 //put value of a into gp + b op code
                 a = mem[ip+2];
                 b = mem[ip+1];
-                mem[gp + b] = a;
+                mem[gp + b] = mem[bp + 2 + a];
                 ip += 3;
 
             }else if(op == 34){
 
                 // put value of gp + b into cell a op code
-                a = mem[ip+2];
-                b = mem[ip+1];
+                a = mem[ip+1];
+                b = mem[ip+2];
                 mem[bp + 2 + a] = mem[gp + b];
                 ip += 3;
 
